@@ -4,8 +4,10 @@ const schema = require('./schema/schema')
 
 const app = express()
 
+// middleware
 app.use('/api', graphqlHTTP({
-  schema: schema // import schema to middleware
+  schema: schema, // import schema to middleware
+  graphiql: true // loads graphiql testing interface at '/api'
 }))
 
 app.listen(4000, () => {
