@@ -1,7 +1,13 @@
 const graphql = require('graphql')
 
 // ES6 destructuring: retrieve and assign necessary properties from graphql
-const { GraphQLObjectType, GraphQLString, GraphQLSchema } = graphql
+const {
+    GraphQLObjectType,
+    GraphQLString,
+    GraphQLInt,
+    GraphQLSchema,
+    GraphQLID
+} = graphql
 
 // fixture data
 const books = [
@@ -10,13 +16,29 @@ const books = [
   { name: 'Some biography book', genre: 'Biography', id: '003' }
 ]
 
+const authors = [
+  { name: 'John Doe', age: 41, id: 'a' },
+  { name: 'Marie Mustermann', age: 54, id: 'b' },
+  { name: 'Jane Wayne', age: 36, id: 'c' }
+]
+
 // define what a 'Book' should look like
 const BookType = new GraphQLObjectType({
   name: 'Book',
   fields: () => ({
-    id: { type: GraphQLString },
+    id: { type: GraphQLID },
     name: { type: GraphQLString },
     genre: { type: GraphQLString }
+  })
+})
+
+// define what an 'Author' should look like
+const AuthorType = new GraphQLObjectType({
+  name: 'Author',
+  fields: () => ({
+    id: { type: GraphQLID },
+    name: { type: GraphQLString },
+    age: { type: GraphQLInt }
   })
 })
 
@@ -25,10 +47,13 @@ const RootQuery = new GraphQLObjectType({
   name: 'RootQueryType',
   fields: {
     book: {
+
       // define that querying 'book' will return a GraphQLObject of BookType
       type: BookType,
+
       // define that a query for a book expects also the ID of the book as an argument
-      args: { id: { type: GraphQLString } },
+      args: { id: { type: GraphQLID } },
+
       // resolve function fires when the query is made
       resolve(parent, args) {
         /*
@@ -36,6 +61,13 @@ const RootQuery = new GraphQLObjectType({
         */
 
         return books.find(book => book.id === args.id) // data that is returned to the user
+      }
+    },
+    author: {
+      type: AuthorType,
+      args: { id: { type: GraphQLID } },
+      resolve(parent, args) {
+        return authors.find(author => author.id == args.id)
       }
     }
   }
