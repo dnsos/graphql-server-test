@@ -3,6 +3,13 @@ const graphql = require('graphql')
 // ES6 destructuring: retrieve and assign necessary properties from graphql
 const { GraphQLObjectType, GraphQLString, GraphQLSchema } = graphql
 
+// fixture data
+const books = [
+  { name: 'Some fantasy book', genre: 'Fantasy', id: '001' },
+  { name: 'Some crime book', genre: 'Crime', id: '002' },
+  { name: 'Some biography book', genre: 'Biography', id: '003' }
+]
+
 // define what a 'Book' should look like
 const BookType = new GraphQLObjectType({
   name: 'Book',
@@ -18,11 +25,17 @@ const RootQuery = new GraphQLObjectType({
   name: 'RootQueryType',
   fields: {
     book: {
-      type: BookType, // define that querying 'book' will return a GraphQLObject of BookType
-      args: { id: { type: GraphQLString } }, // define that a query for a book expects also the ID of the book as an argument
+      // define that querying 'book' will return a GraphQLObject of BookType
+      type: BookType,
+      // define that a query for a book expects also the ID of the book as an argument
+      args: { id: { type: GraphQLString } },
+      // resolve function fires when the query is made
       resolve(parent, args) {
-        // here data from a database or other source can be retrieved
-        args.id
+        /*
+        NOTE: In this function it's possible to access a database or another external data source
+        */
+
+        return books.find(book => book.id === args.id) // data that is returned to the user
       }
     }
   }
