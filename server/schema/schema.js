@@ -6,14 +6,18 @@ const {
     GraphQLString,
     GraphQLInt,
     GraphQLSchema,
-    GraphQLID
+    GraphQLID,
+    GraphQLList
 } = graphql
 
 // fixture data
 const books = [
-  { name: 'Some fantasy book', genre: 'Fantasy', id: '001' },
-  { name: 'Some crime book', genre: 'Crime', id: '002' },
-  { name: 'Some biography book', genre: 'Biography', id: '003' }
+  { name: 'Some fantasy book', authorID: 'b', genre: 'Fantasy', id: '1' },
+  { name: 'Some crime book', authorID: 'a', genre: 'Crime', id: '2' },
+  { name: 'Some biography book', authorID: 'c', genre: 'Biography', id: '3' },
+  { name: 'Some science book', authorID: 'c', genre: 'Science', id: '4' },
+  { name: 'Some educational book', authorID: 'a', genre: 'Education', id: '5' },
+  { name: 'Some romantic book', authorID: 'a', genre: 'Romantic', id: '6' }
 ]
 
 const authors = [
@@ -25,20 +29,34 @@ const authors = [
 // define what a 'Book' should look like
 const BookType = new GraphQLObjectType({
   name: 'Book',
+  // 'field' needs to be a function to first initialise BookType and AuthorType before accessing each
   fields: () => ({
     id: { type: GraphQLID },
     name: { type: GraphQLString },
-    genre: { type: GraphQLString }
+    genre: { type: GraphQLString },
+    author: {
+      type: AuthorType,
+      resolve(parent, args) { // parent references the Book type
+        return authors.find(author => author.id === parent.authorID)
+      }
+    }
   })
 })
 
 // define what an 'Author' should look like
 const AuthorType = new GraphQLObjectType({
   name: 'Author',
+  // 'field' needs to be a function to first initialise BookType and AuthorType before accessing each
   fields: () => ({
     id: { type: GraphQLID },
     name: { type: GraphQLString },
-    age: { type: GraphQLInt }
+    age: { type: GraphQLInt },
+    books: {
+      type: new GraphQLList(BookType), // access a list of books
+      resolve(parent, args) { // parent references the Author type
+        return books.filter(book => book.authorID === parent.id)
+      }
+    }
   })
 })
 
