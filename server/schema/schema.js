@@ -1,5 +1,9 @@
 const graphql = require('graphql')
 
+// importing the MongoDB models
+const Book = require('../models/book')
+const Author = require('../models/author')
+
 // ES6 destructuring: retrieve and assign necessary properties from graphql
 const {
     GraphQLObjectType,
@@ -37,7 +41,7 @@ const BookType = new GraphQLObjectType({
     author: {
       type: AuthorType,
       resolve(parent, args) { // parent references the Book type
-        return authors.find(author => author.id === parent.authorID)
+        /* return authors.find(author => author.id === parent.authorID) */
       }
     }
   })
@@ -54,7 +58,7 @@ const AuthorType = new GraphQLObjectType({
     books: {
       type: new GraphQLList(BookType), // access a list of books
       resolve(parent, args) { // parent references the Author type
-        return books.filter(book => book.authorID === parent.id)
+        /* return books.filter(book => book.authorID === parent.id) */
       }
     }
   })
@@ -78,26 +82,48 @@ const RootQuery = new GraphQLObjectType({
         NOTE: In this function it's possible to access a database or another external data source
         */
 
-        return books.find(book => book.id === args.id) // data that is returned to the user
+        /* return books.find(book => book.id === args.id) */ // data that is returned to the user
       }
     },
     author: {
       type: AuthorType,
       args: { id: { type: GraphQLID } },
       resolve(parent, args) {
-        return authors.find(author => author.id == args.id)
+        /* return authors.find(author => author.id == args.id) */
       }
     },
     books: {
       type: new GraphQLList(BookType),
       resolve() {
-        return books // simply return 'books' array
+        /* return books */ // simply return 'books' array
       }
     },
     authors: {
       type: new GraphQLList(AuthorType),
       resolve() {
-        return authors // simply return 'authors' array
+        /* return authors */ // simply return 'authors' array
+      }
+    }
+  }
+})
+
+const Mutation = new GraphQLObjectType({
+  name: 'Mutation',
+  fields: {
+    addAuthor: {
+      type: AuthorType,
+      args: {
+        name: { type: GraphQLString },
+        age: { type: GraphQLInt }
+      },
+      resolve(parent, args) {
+        // accesses imported MongoDB model
+        let author = new Author({
+          name: args.name,
+          age: args.age
+        })
+
+        return author.save() // saves instance to database with mongoose
       }
     }
   }
@@ -105,5 +131,6 @@ const RootQuery = new GraphQLObjectType({
 
 // export which query a user can use from the frontend (schema)
 module.exports = new GraphQLSchema({
-  query: RootQuery
+  query: RootQuery,
+  mutation: Mutation
 })
