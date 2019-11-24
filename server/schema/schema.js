@@ -14,22 +14,6 @@ const {
     GraphQLList
 } = graphql
 
-// fixture data
-const books = [
-  { name: 'Some fantasy book', authorID: 'b', genre: 'Fantasy', id: '1' },
-  { name: 'Some crime book', authorID: 'a', genre: 'Crime', id: '2' },
-  { name: 'Some biography book', authorID: 'c', genre: 'Biography', id: '3' },
-  { name: 'Some science book', authorID: 'c', genre: 'Science', id: '4' },
-  { name: 'Some educational book', authorID: 'a', genre: 'Education', id: '5' },
-  { name: 'Some romantic book', authorID: 'a', genre: 'Romantic', id: '6' }
-]
-
-const authors = [
-  { name: 'John Doe', age: 41, id: 'a' },
-  { name: 'Marie Mustermann', age: 54, id: 'b' },
-  { name: 'Jane Wayne', age: 36, id: 'c' }
-]
-
 // define what a 'Book' should look like
 const BookType = new GraphQLObjectType({
   name: 'Book',
@@ -124,6 +108,23 @@ const Mutation = new GraphQLObjectType({
         })
 
         return author.save() // saves instance to database with mongoose
+      }
+    },
+    addBook: {
+      type: BookType,
+      args: {
+        name: { type: GraphQLString },
+        genre: { type: GraphQLString },
+        authorID: { type: GraphQLID }
+      },
+      resolve(parent, args) {
+        let book = new Book({
+          name: args.name,
+          genre: args.genre,
+          athorID: args.authorID
+        })
+
+        return book.save()
       }
     }
   }
