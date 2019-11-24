@@ -3,12 +3,11 @@ const graphqlHTTP = require('express-graphql')
 const schema = require('./schema/schema')
 const mongoose = require('mongoose')
 
-const creds = require('./creds')
-const { DB_URL } = creds
+require('dotenv').config()
 
 const app = express()
 
-mongoose.connect(DB_URL, {
+mongoose.connect(process.env.DB_URL, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 })

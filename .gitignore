@@ -1,4 +1,4 @@
 server/node_modules
 server/package-lock.json
 
-server/creds.js
+server/.env
