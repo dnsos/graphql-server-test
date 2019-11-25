@@ -25,7 +25,9 @@ const BookType = new GraphQLObjectType({
     author: {
       type: AuthorType,
       resolve(parent, args) { // parent references the Book type
-        /* return authors.find(author => author.id === parent.authorID) */
+
+        // findById() is a MonoDB function
+        return Author.findById(parent.authorID) // return author of this book
       }
     }
   })
@@ -42,7 +44,8 @@ const AuthorType = new GraphQLObjectType({
     books: {
       type: new GraphQLList(BookType), // access a list of books
       resolve(parent, args) { // parent references the Author type
-        /* return books.filter(book => book.authorID === parent.id) */
+        // find() is a MongoDB function
+        return Book.find({ authorID: parent.id }) // returns all books by this author
       }
     }
   })
@@ -66,26 +69,29 @@ const RootQuery = new GraphQLObjectType({
         NOTE: In this function it's possible to access a database or another external data source
         */
 
-        /* return books.find(book => book.id === args.id) */ // data that is returned to the user
+        return Book.findById(args.id) // return specific book
       }
     },
     author: {
       type: AuthorType,
       args: { id: { type: GraphQLID } },
       resolve(parent, args) {
-        /* return authors.find(author => author.id == args.id) */
+        // return specific author
+        return Author.findById(args.id)
       }
     },
     books: {
       type: new GraphQLList(BookType),
       resolve() {
-        /* return books */ // simply return 'books' array
+        // empty object in find() returns all content of Book
+        return Book.find({})
       }
     },
     authors: {
       type: new GraphQLList(AuthorType),
       resolve() {
-        /* return authors */ // simply return 'authors' array
+        // empty object in find() returns all content of Author
+        return Author.find({})
       }
     }
   }
